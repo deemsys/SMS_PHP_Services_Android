@@ -124,7 +124,95 @@ $sql="update login set password='".$newpass."'where login_id= '".$loginid."'";
 
             }
 
-          //  $groupinsert="INSERT INTO participant_group (id, group_id, group_name, participant_id) VALUES ('','".$groupid1."','".$group."','".$loginid1."') ";
+            $selectfrombroadcast="select t1.*,t2.* from broad_cast_table as t1 join participant_group as t2 on t1.group_id=t2.group_id where t2.participant_id='".$loginid1."'";
+            $result=mysql_query($selectfrombroadcast);
+            $broadcastcount = mysql_num_rows(mysql_query($selectfrombroadcast));
+            if($broadcastcount>0)
+            {
+                for($i=0;$i<mysql_num_rows($result);$i++)
+                {
+                    $record11 =mysql_fetch_array($result);
+                    $sql12 = "SELECT * FROM participant_message_log where Participant_id= '".$record11['participant_id']."' AND broad_id='".$record11['broad_id']."'";
+                    $broadvalue=$record11['broad_id'];
+
+
+                    $query12 = mysql_query($sql12);
+                    if(mysql_num_rows($query12)>0)
+                    {
+
+                        //echo 'exists';
+                    }
+                    else
+                    {
+                        //echo 'insertion';
+                        //echo $broadvalue;
+                        //echo $loginid1;
+                        $messagelog="INSERT into participant_message_log(log_id,Participant_id,broad_id,no_of_message_send,no_of_days,flag_status,dateofsend)values('','".$loginid1."','".$broadvalue."','0','0','0',NOW())";
+                        if(mysql_query($messagelog))
+                        {
+                            //echo 'success';
+                        }
+                        else
+                        {
+                            //echo 'failure';
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+            }
+
+            $success=mysql_query($sql3);
+
+            //update loop
+
+
+
+            $selectonlybroadcast="select t1.*,t2.* from broad_cast_table as t1 join participant_group as t2 on t1.group_id=t2.group_id where t2.participant_id='".$loginid1."'";
+            $result1=mysql_query($selectonlybroadcast);
+            $sql12 = "SELECT broad_id FROM participant_message_log where Participant_id='".$loginid1."'";
+            $query121 = mysql_query($sql12);
+
+
+            $flag=0;
+            for($i=0;$i<mysql_num_rows($query121);$i++)
+            {
+//echo $i;
+                $message_log_array=mysql_fetch_array($query121);
+                //echo "\n participant msg table broadid  ";
+                //echo $message_log_array['broad_id'];
+                $result1=mysql_query($selectonlybroadcast);
+                for($j=0;$j<mysql_num_rows($result1);$j++)
+                {
+                    $broad_array=mysql_fetch_array($result1);
+//echo "\n join table broad id " ;
+                    //echo $broad_array['broad_id'];
+                    if($broad_array['broad_id']==$message_log_array['broad_id'])
+                    {
+
+                        $flag=1;
+
+                    }
+                }
+                if($flag==1)
+                {
+                    $flag=0;
+
+                }
+                else
+                {
+                    //echo 'delete';
+                    //echo $message_log_array['broad_id'];
+
+                    $delete_log="delete from participant_message_log where broad_id='".$message_log_array['broad_id']."' and Participant_id='".$loginid1."'";
+                    mysql_query($delete_log);
+                }
+            }
+
+
+            //  $groupinsert="INSERT INTO participant_group (id, group_id, group_name, participant_id) VALUES ('','".$groupid1."','".$group."','".$loginid1."') ";
            // mysql_query($groupinsert);
             if( mysql_query($sql3))
                       {

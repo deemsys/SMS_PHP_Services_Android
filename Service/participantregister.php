@@ -101,6 +101,43 @@ switch($case){
                 mysql_query($sql1);
                 $day+=7;
             }
+            $selectfrombroadcast="select t1.*,t2.* from broad_cast_table as t1 join participant_group as t2 on t1.group_id=t2.group_id where t2.participant_id='".$indipat_id."'";
+            $result=mysql_query($selectfrombroadcast);
+            $broadcastcount = mysql_num_rows(mysql_query($selectfrombroadcast));
+            if($broadcastcount>0)
+            {
+                for($i=0;$i<mysql_num_rows($result);$i++)
+                {
+                    $record11 =mysql_fetch_array($result);
+                    $sql12 = "SELECT * FROM participant_message_log where Participant_id= '".$record11['participant_id']."' AND broad_id='".$record11['broad_id']."'";
+
+                    $query12 = mysql_query($sql12);
+                    if(mysql_num_rows($query12)>0)
+                    {
+                        // $row		= mysql_fetch_object($query12);
+                     //   echo 'exists';
+                    }
+                    else
+                    {
+                        $messagelog="insert into participant_message_log(log_id,Participant_id,broad_id,no_of_message_send,no_of_days,flag_status,dateofsend)values('','".$record11['participant_id']."','".$record11['broad_id']."','0','0','0',NOW())";
+                        if(mysql_query($messagelog))
+                        {
+                            //  echo 'success';
+                        }
+                        else
+                        {
+                            // echo 'failure';
+                        }
+                    }
+
+
+
+                }
+            }
+            else
+            {
+
+            }
              $userlogs="insert into user_roles (USER_ROLE_ID,USER_ID,AUTHORITY) values ('','".$indipat_id."','ROLE_USER')";
             if(mysql_query($userlogs))
             {
